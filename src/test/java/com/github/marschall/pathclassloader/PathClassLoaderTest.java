@@ -6,25 +6,33 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
-import org.junit.Ignore;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-@Ignore("fails")
-public class UrlClassLoaderTest {
+import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
 
-//  @Rule
-//  public final FileSystemRule rule = new FileSystemRule();
+public class PathClassLoaderTest {
   
-  private FileSystem fileSytem;
+  private FileSystem fileSystem;
+  
+  @Before
+  public void setUp() throws IOException {
+	  this.fileSystem = MemoryFileSystemBuilder.newEmpty().build("url-path-test");
+  } 
+  
+  @After
+  public void tearDown() throws IOException {
+	  this.fileSystem.close();
+  } 
 
   @Test
   public void createUrlClassLoader() throws Exception {
@@ -33,7 +41,7 @@ public class UrlClassLoaderTest {
     try (InputStream sourceClassFile = clazz.getResourceAsStream(fileName)) {
       assertNotNull(sourceClassFile);
 
-      Path parent = this.fileSytem.getPath(clazz.getPackage().getName().replace('.', '/'));
+      Path parent = this.fileSystem.getPath(clazz.getPackage().getName().replace('.', '/'));
       Files.createDirectories(parent);
       try (OutputStream output = Files.newOutputStream(parent.resolve(fileName), CREATE_NEW, WRITE)) {
         byte[] buffer = new byte[4096];
@@ -43,13 +51,12 @@ public class UrlClassLoaderTest {
         }
       }
 
-      Path root = this.fileSytem.getPath("/");
-      try (URLClassLoader classLoader = new URLClassLoader(new URL[]{root.toUri().toURL()})) {
-        Class<?> loadedClass = Class.forName(clazz.getName(), true, classLoader);
-        assertTrue(Callable.class.isAssignableFrom(loadedClass));
-        Object instance = loadedClass.getConstructor().newInstance();
-        assertEquals("Hello World", ((Callable<?>) instance).call());
-      }
+      Path root = this.fileSystem.getPath("/");
+      ClassLoader classLoader = new PathClassLoader(root);
+      Class<?> loadedClass = Class.forName(clazz.getName(), true, classLoader);
+      assertTrue(Callable.class.isAssignableFrom(loadedClass));
+      Object instance = loadedClass.getConstructor().newInstance();
+      assertEquals("Hello World", ((Callable<?>) instance).call());
 
     }
   }
