@@ -62,12 +62,3 @@ public class PathClassLoaderTest {
   }
 
 }
-
-class HelloWorld implements Callable<String> {
-
-  @Override
-  public String call() throws Exception {
-    return "Hello World";
-  }
-
-}

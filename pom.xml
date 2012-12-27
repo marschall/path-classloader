@@ -6,7 +6,7 @@
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Path Class Loader</name>
-  <description>A Class Loader a works on a Java 7 (JSR-203) file system path.</description>
+  <description>A Class Loader that works on a Java 7 (JSR-203) file system path.</description>
   <inceptionYear>2011</inceptionYear>
 
   <url>https://github.com/marschall/path-classloader</url>
