@@ -71,6 +71,7 @@ public final class PathClassLoader extends ClassLoader {
 	@Override
 	protected Enumeration<URL> findResources(String name) throws IOException {
 		FileSystem fileSystem = this.path.getFileSystem();
+		// TODO correct?
 		final PathMatcher matcher = fileSystem.getPathMatcher("glob:" + name);
 		final List<URL> resources = new ArrayList<>();
 		
