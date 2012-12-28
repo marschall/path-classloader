@@ -7,7 +7,7 @@
   <packaging>jar</packaging>
   <name>Path Class Loader</name>
   <description>A Class Loader that works on a Java 7 (JSR-203) file system path.</description>
-  <inceptionYear>2011</inceptionYear>
+  <inceptionYear>2012</inceptionYear>
 
   <url>https://github.com/marschall/path-classloader</url>
 
