@@ -1,6 +1,7 @@
 package com.github.marschall.pathclassloader;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -79,18 +80,31 @@ public class PathClassLoaderTest {
       Path root = this.fileSystem.getPath("/");
       ClassLoader classLoader = new PathClassLoader(root);
       List<URL> resources = Collections.list(classLoader.getResources("/subfolder/*"));
+      assertThat(resources, empty());
       
+      resources = Collections.list(classLoader.getResources("subfolder/*"));
+      assertThat(resources, empty());
+      
+      resources = Collections.list(classLoader.getResources("subfolder"));
       assertThat(resources, hasSize(1));
       
-      URL resoure = resources.get(0);
-      try (InputStream input = resoure.openStream()) {
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        copy(input, output);
-        byte[] data = output.toByteArray();
-        byte[] expected = new byte[]{'c', 'o', 'n', 't', 'e', 'n', 't'};
-        assertArrayEquals(expected, data);
-      }
+      resources = Collections.list(classLoader.getResources("subfolder/file.txt"));
+      assertThat(resources, hasSize(1));
+      assertContents(resources.get(0));
+      
+      resources = Collections.list(classLoader.getResources(""));
+      assertThat(resources, hasSize(1));
     }  
+  }
+
+  private static void assertContents(URL resoure) throws IOException {
+    try (InputStream input = resoure.openStream()) {
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      copy(input, output);
+      byte[] data = output.toByteArray();
+      byte[] expected = new byte[]{'c', 'o', 'n', 't', 'e', 'n', 't'};
+      assertArrayEquals(expected, data);
+    }
   }
   
   private static void copy(InputStream input, OutputStream output) throws IOException {

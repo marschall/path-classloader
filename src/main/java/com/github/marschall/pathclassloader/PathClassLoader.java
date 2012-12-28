@@ -3,11 +3,9 @@ package com.github.marschall.pathclassloader;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLStreamHandler;
-import java.nio.file.FileSystem;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -69,20 +67,33 @@ public final class PathClassLoader extends ClassLoader {
   }
 
   @Override
-  protected Enumeration<URL> findResources(String name) throws IOException {
-    FileSystem fileSystem = this.path.getFileSystem();
+  protected Enumeration<URL> findResources(final String name) throws IOException {
     // TODO correct?
-    final PathMatcher matcher = fileSystem.getPathMatcher("glob:" + name);
-    final List<URL> resources = new ArrayList<>();
+    final List<URL> resources = new ArrayList<>(1);
 
     Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
       @Override
       public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        if (matcher.matches(file)) {
-          resources.add(toURL(file));
+        if (!name.isEmpty()) {
+          this.addIfMatches(resources, file);
         }
         return super.visitFile(file, attrs);
       }
+      
+      @Override
+      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        if (!name.isEmpty() || path.equals(dir)) {
+          this.addIfMatches(resources, dir);
+        }
+        return super.preVisitDirectory(dir, attrs);
+      }
+
+      void addIfMatches(List<URL> resources, Path file) throws IOException {
+        if (path.relativize(file).toString().equals(name)) {
+          resources.add(toURL(file));
+        }
+      }
+      
     });
     return Collections.enumeration(resources);
   }
