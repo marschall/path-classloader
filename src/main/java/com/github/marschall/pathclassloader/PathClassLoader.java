@@ -21,9 +21,7 @@ public final class PathClassLoader extends ClassLoader {
   private final Path path;
 
   static {
-    if (!registerAsParallelCapable()) {
-      throw new AssertionError("could not register class as parallel capable");
-    }
+    registerAsParallelCapable();
   }
 
   public PathClassLoader(Path path) {
