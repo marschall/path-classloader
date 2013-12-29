@@ -63,35 +63,35 @@ public class PathClassLoaderTest {
 
     }
   }
-  
+
   @Test
   public void findResources() throws IOException {
     Class<?> clazz = HelloWorld.class;
     try (InputStream sourceClassFile = clazz.getClassLoader().getResourceAsStream("subfolder/file.txt")) {
       assertNotNull(sourceClassFile);
-      
+
       Path target = this.fileSystem.getPath("/subfolder/file.txt");
       Files.createDirectories(target.getParent());
-      
+
       try (OutputStream output = Files.newOutputStream(target, CREATE_NEW)) {
         copy(sourceClassFile, output);
       }
-      
+
       Path root = this.fileSystem.getPath("/");
       ClassLoader classLoader = new PathClassLoader(root);
       List<URL> resources = Collections.list(classLoader.getResources("/subfolder/*"));
       assertThat(resources, empty());
-      
+
       resources = Collections.list(classLoader.getResources("subfolder/*"));
       assertThat(resources, empty());
-      
+
       resources = Collections.list(classLoader.getResources("subfolder"));
       assertThat(resources, hasSize(1));
-      
+
       resources = Collections.list(classLoader.getResources("subfolder/file.txt"));
       assertThat(resources, hasSize(1));
       assertContents(resources.get(0));
-      
+
       resources = Collections.list(classLoader.getResources(""));
       assertThat(resources, hasSize(1));
     }  
@@ -106,7 +106,7 @@ public class PathClassLoaderTest {
       assertArrayEquals(expected, data);
     }
   }
-  
+
   private static void copy(InputStream input, OutputStream output) throws IOException {
     byte[] buffer = new byte[4096];
     int read;

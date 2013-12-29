@@ -2,7 +2,6 @@ package com.github.marschall.pathclassloader;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLStreamHandler;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,10 +12,13 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-//TODO SecureClassLoader
+/**
+ * Loads classes from a certain {@link Path}.
+ * 
+ * <p>Class loading will will happen in a parent first manner which is
+ * the Java SE default may.
+ */
 public final class PathClassLoader extends ClassLoader {
-
-  private static final URLStreamHandler HANDLER = new PathURLStreamHandler();
 
   private final Path path;
 
@@ -24,10 +26,23 @@ public final class PathClassLoader extends ClassLoader {
     registerAsParallelCapable();
   }
 
+  /**
+   * Creates a new {@link PathClassLoader} with no parent class loader.
+   * 
+   * @param path the path from with to load the classes
+   */
   public PathClassLoader(Path path) {
     this(path, null);
   }
 
+  
+  /**
+   * Creates a new {@link PathClassLoader} with a parent class loader.
+   * 
+   * @param path the path from with to load the classes
+   * @param parent the class loader from which to try loading classes
+   *  first
+   */
   public PathClassLoader(Path path, ClassLoader parent) {
     super(parent);
     this.path = path;
@@ -97,7 +112,7 @@ public final class PathClassLoader extends ClassLoader {
   }
 
   private URL toURL(Path path) throws IOException {
-    return new URL(null, path.toUri().toString(), HANDLER);
+    return new URL(null, path.toUri().toString(), PathURLStreamHandler.INSTANCE);
   }
 
 }

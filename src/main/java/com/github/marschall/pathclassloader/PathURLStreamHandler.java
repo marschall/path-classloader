@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 final class PathURLStreamHandler extends URLStreamHandler {
+  
+  static final URLStreamHandler INSTANCE = new PathURLStreamHandler();
 
   @Override
   protected URLConnection openConnection(URL url) throws IOException {
