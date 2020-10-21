@@ -1,12 +1,12 @@
 package com.github.marschall.pathclassloader;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -94,7 +94,7 @@ public class PathClassLoaderTest {
 
       resources = Collections.list(classLoader.getResources(""));
       assertThat(resources, hasSize(1));
-    }  
+    }
   }
 
   private static void assertContents(URL resoure) throws IOException {
