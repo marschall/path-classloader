@@ -2,15 +2,12 @@ package com.github.marschall.pathclassloader;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Loads classes from a certain {@link Path}.
@@ -35,7 +32,7 @@ public final class PathClassLoader extends ClassLoader {
     this(path, null);
   }
 
-  
+
   /**
    * Creates a new {@link PathClassLoader} with a parent class loader.
    * 
@@ -50,11 +47,13 @@ public final class PathClassLoader extends ClassLoader {
 
   @Override
   protected Class<?> findClass(String name) throws ClassNotFoundException {
-    // TODO path injection
-    Path classPath = this.path.resolve(name.replace('.', '/').concat(".class"));
-    if (Files.exists(classPath)) {
+    Path clazz = this.path.resolve(name.replace('.', '/').concat(".class")).normalize();
+    if (!clazz.startsWith(this.path)) {
+      throw new ClassNotFoundException();
+    }
+    if (Files.exists(clazz)) {
       try {
-        byte[] byteCode = Files.readAllBytes(classPath);
+        byte[] byteCode = Files.readAllBytes(clazz);
         return this.defineClass(name, byteCode, 0, byteCode.length);
       } catch (IOException e) {
         throw new ClassNotFoundException(name, e);
@@ -66,8 +65,10 @@ public final class PathClassLoader extends ClassLoader {
 
   @Override
   protected URL findResource(String name) {
-    // TODO path injection
-    Path resolved = this.path.resolve(name);
+    Path resolved = this.path.resolve(name).normalize();
+    if (!resolved.startsWith(this.path)) {
+      return null;
+    }
     if (Files.exists(resolved)) {
       try {
         return toURL(resolved);
@@ -81,38 +82,58 @@ public final class PathClassLoader extends ClassLoader {
 
   @Override
   protected Enumeration<URL> findResources(final String name) throws IOException {
-    // TODO correct?
-    final List<URL> resources = new ArrayList<>(1);
-
-    Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        if (!name.isEmpty()) {
-          this.addIfMatches(resources, file);
-        }
-        return super.visitFile(file, attrs);
+    Path resolved = this.path.resolve(name).normalize();
+    if (!resolved.startsWith(this.path)) {
+      return Collections.emptyEnumeration();
+    }
+    if (Files.exists(resolved)) {
+      try {
+        return new SingletonEnumeration<URL>(toURL(resolved));
+      } catch (IOException e) {
+        throw new RuntimeException("could not open " + resolved, e);
       }
-      
-      @Override
-      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-        if (!name.isEmpty() || path.equals(dir)) {
-          this.addIfMatches(resources, dir);
-        }
-        return super.preVisitDirectory(dir, attrs);
-      }
-
-      void addIfMatches(List<URL> resources, Path file) throws IOException {
-        if (path.relativize(file).toString().equals(name)) {
-          resources.add(toURL(file));
-        }
-      }
-      
-    });
-    return Collections.enumeration(resources);
+    } else {
+      return Collections.emptyEnumeration();
+    }
   }
 
   private URL toURL(Path path) throws IOException {
     return new URL(null, path.toUri().toString(), PathURLStreamHandler.INSTANCE);
+  }
+
+  static final class SingletonEnumeration<E> implements Enumeration<E> {
+
+    private boolean hasMoreElements;
+    private final E element;
+
+    SingletonEnumeration(E element) {
+      this.element = element;
+      this.hasMoreElements = true;
+    }
+
+    @Override
+    public boolean hasMoreElements() {
+      return this.hasMoreElements;
+    }
+
+    @Override
+    public E nextElement() {
+      if (!this.hasMoreElements) {
+        throw new NoSuchElementException();
+      }
+      this.hasMoreElements = false;
+      return this.element;
+    }
+
+    @Override
+    public Iterator<E> asIterator() {
+      if (this.hasMoreElements) {
+        return Collections.singleton(this.element).iterator();
+      } else {
+        return Collections.emptyIterator();
+      }
+    }
+
   }
 
 }
