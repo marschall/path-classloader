@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 
 /**
  * Loads classes from a certain {@link Path}.
- * 
+ *
  * <p>Class loading will will happen in a parent first manner which is
  * the Java SE default may.
  */
@@ -25,7 +25,7 @@ public final class PathClassLoader extends ClassLoader {
 
   /**
    * Creates a new {@link PathClassLoader} with no parent class loader.
-   * 
+   *
    * @param path the path from with to load the classes
    */
   public PathClassLoader(Path path) {
@@ -35,7 +35,7 @@ public final class PathClassLoader extends ClassLoader {
 
   /**
    * Creates a new {@link PathClassLoader} with a parent class loader.
-   * 
+   *
    * @param path the path from with to load the classes
    * @param parent the class loader from which to try loading classes
    *  first
@@ -71,7 +71,7 @@ public final class PathClassLoader extends ClassLoader {
     }
     if (Files.exists(resolved)) {
       try {
-        return toURL(resolved);
+        return this.toURL(resolved);
       } catch (IOException e) {
         throw new RuntimeException("could not open " + resolved, e);
       }
@@ -88,7 +88,7 @@ public final class PathClassLoader extends ClassLoader {
     }
     if (Files.exists(resolved)) {
       try {
-        return new SingletonEnumeration<URL>(toURL(resolved));
+        return new SingletonEnumeration<>(this.toURL(resolved));
       } catch (IOException e) {
         throw new RuntimeException("could not open " + resolved, e);
       }
@@ -125,7 +125,6 @@ public final class PathClassLoader extends ClassLoader {
       return this.element;
     }
 
-    @Override
     public Iterator<E> asIterator() {
       if (this.hasMoreElements) {
         return Collections.singleton(this.element).iterator();
