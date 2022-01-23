@@ -164,6 +164,13 @@
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.1.1</version>
+          <configuration>
+            <archive>
+              <manifestEntries>
+                <Automatic-Module-Name>com.github.marschall.pathclassloader</Automatic-Module-Name>
+              </manifestEntries>
+            </archive>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-javadoc-plugin</artifactId>
