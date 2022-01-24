@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.marschall</groupId>
   <artifactId>path-classloader</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Path Class Loader</name>
   <description>A Class Loader that works on a Java 7 (JSR-203) file system path.</description>
@@ -15,7 +15,7 @@
     <connection>scm:git:git@github.com:marschall/path-classloader.git</connection>
     <developerConnection>scm:git:git@github.com:marschall/path-classloader.git</developerConnection>
     <url>${project.url}</url>
-    <tag>1.0.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <developers>
