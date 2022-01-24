@@ -1,4 +1,4 @@
-Path Class Loader [![Build Status](https://travis-ci.org/marschall/path-classloader.png?branch=master)](https://travis-ci.org/marschall/path-classloader)
+Path Class Loader [![Build Status](https://app.travis-ci.com/marschall/path-classloader.svg?branch=master)](https://app.travis-ci.com/marschall/path-classloader)
 =================
 
 A class loader that can be created on a Java 7 (JSR-203) file system path. This is very similar to `URLClassLoader` except that it works on any file system. `URLClassLoader` only works when a corresponding `URLStreamHandler` is installed which [is hard to do in a non-intrusive way](http://www.unicon.net/node/776).
