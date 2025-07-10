@@ -26,7 +26,7 @@ public final class PathClassLoader extends ClassLoader {
   /**
    * Creates a new {@link PathClassLoader} with no parent class loader.
    *
-   * @param path the path from with to load the classes
+   * @param path the path from which to load the classes
    */
   public PathClassLoader(Path path) {
     this(path, null);
@@ -36,7 +36,7 @@ public final class PathClassLoader extends ClassLoader {
   /**
    * Creates a new {@link PathClassLoader} with a parent class loader.
    *
-   * @param path the path from with to load the classes
+   * @param path the path from which to load the classes
    * @param parent the class loader from which to try loading classes
    *  first
    */
